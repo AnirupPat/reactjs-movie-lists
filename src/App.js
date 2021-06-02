@@ -8,8 +8,20 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const addMovieHandler = (movie) => {
+  const addMovieHandler = async(movie) => {
     console.log(movie);
+    const response = await fetch("https://react-movie-set-default-rtdb.firebaseio.com/movies.json",{
+      method: 'POST',
+      body: JSON.stringify(movie),
+      header: {
+        'Content-Type': 'application/json'
+      }
+    });
+      if(!response.ok) {
+        throw new Error('Something went wrong');
+      }
+      const data = await response.json();
+      console.log(data);
   }
 
   const fecthMoviesHandler = useCallback( async() => {
@@ -21,16 +33,17 @@ function App() {
         throw new Error('Something went wrong');
       }
       const data = await response.json();
-      
-      const transformedMovies = data.results.map((movie) => {
-        return {
-          id: movie.epidode_id,
-          title: movie.title,
-          openingText: movie.opening_crawl,
-          releaseDate: movie.release_date,
-        };
-      });
-      setMovieList(transformedMovies);
+      console.log(data)
+      let loadedMovies = [];
+      for(const key in data) {
+        loadedMovies.push({
+          id: key,
+          title: data[key].title,
+          openingText: data[key].openingText,
+          releaseDate: data[key].releaseDate
+        });
+      }
+      setMovieList(loadedMovies);
     } catch(error) {
       setError(error.message);
     }

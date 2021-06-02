@@ -5,7 +5,10 @@ import "./App.css";
 
 function App() {
   const [movieList, setMovieList] = useState([]);
+  const [isLoading, setIsLoading]= useState(false);
+
   const fectMoviesHandler = async () => {
+    setIsLoading(true);
     const response = await fetch("https://swapi.dev/api/films/");
     const data = await response.json();
     const transformedMovies = data.results.map((movie) => {
@@ -17,6 +20,7 @@ function App() {
       };
     });
     setMovieList(transformedMovies);
+    setIsLoading(false);
   };
 
   return (
@@ -25,7 +29,9 @@ function App() {
         <button onClick={fectMoviesHandler}>Fetch Movies</button>
       </section>
       <section>
-        <MoviesList movies={movieList} />
+        {!isLoading && movieList.length > 0 && <MoviesList movies={movieList} />}
+        {!isLoading && movieList.length === 0 && <p>Found no movies</p>}
+        {isLoading && <p>Loading...</p>}
       </section>
     </React.Fragment>
   );
